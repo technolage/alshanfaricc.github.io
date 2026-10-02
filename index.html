@@ -1,80 +1,687 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">ALSHANFRICC</title>
-    <meta name="description" content="موسوعة ALSHANFRICC التاريخية">
-    <link id="dynamic-font-link" rel="stylesheet" href="">
-    <link rel="stylesheet" href="assets/css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#1a0f1a">
+<title>غروبنا</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a0f1a;
+    --bg-2: #241625;
+    --my-bubble: #3d1a2e;
+    --her-bubble: #4a1f3d;
+    --accent: #e8a0bf;
+    --accent-dim: #c87898;
+    --text: #f5e6ef;
+    --text-dim: #a08698;
+    --border: rgba(232, 160, 191, 0.14);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Tajawal', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+    font-size: 15px;
+  }
+
+  /* شاشة الدخول */
+  #authScreen {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    background: radial-gradient(circle at 50% 30%, #2a1528 0%, #1a0f1a 70%);
+  }
+  .auth-card { width: 100%; max-width: 380px; text-align: center; }
+  .auth-logo {
+    font-size: 40px; font-weight: 300; letter-spacing: 0.15em;
+    color: var(--accent); margin-bottom: 8px;
+  }
+  .auth-sub {
+    font-size: 13px; color: var(--text-dim); margin-bottom: 40px;
+    letter-spacing: 0.1em;
+  }
+  .auth-input {
+    width: 100%; padding: 16px 18px; margin-bottom: 12px;
+    background: rgba(232, 160, 191, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text); font-size: 15px; font-family: inherit;
+    outline: none; transition: all 0.2s;
+  }
+  .auth-input:focus {
+    border-color: var(--accent);
+    background: rgba(232, 160, 191, 0.08);
+  }
+  .auth-input::placeholder { color: var(--text-dim); }
+  .auth-btn {
+    width: 100%; padding: 16px; margin-top: 8px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+    border: none; border-radius: 14px;
+    color: #1a0f1a; font-size: 16px; font-weight: 700;
+    font-family: inherit; cursor: pointer; transition: all 0.2s;
+  }
+  .auth-btn:active { transform: scale(0.98); }
+  .auth-btn:disabled { opacity: 0.5; cursor: wait; }
+  .auth-msg {
+    margin-top: 16px; font-size: 13px;
+    color: var(--accent); min-height: 20px;
+  }
+
+  /* شاشة التطبيق */
+  #appScreen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    background: var(--bg);
+  }
+
+  .app-header {
+    padding: 14px 18px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .partner { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--her-bubble), var(--my-bubble));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 17px; color: var(--accent);
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+  }
+  .partner-name {
+    font-size: 15px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .partner-status {
+    font-size: 11px; color: var(--text-dim);
+    margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .partner-status.online { color: var(--accent); }
+  .header-stats {
+    display: flex; gap: 10px; font-size: 12px;
+    color: var(--accent); flex-shrink: 0;
+  }
+  .stat {
+    padding: 5px 10px; border-radius: 20px;
+    background: rgba(232, 160, 191, 0.08);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .messages {
+    flex: 1; overflow-y: auto;
+    padding: 20px 14px 12px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-thumb {
+    background: rgba(232, 160, 191, 0.25); border-radius: 2px;
+  }
+
+  .empty-state {
+    text-align: center; color: var(--text-dim);
+    padding: 60px 20px; font-size: 14px; line-height: 1.8;
+  }
+  .empty-state .heart {
+    font-size: 40px; margin-bottom: 16px;
+    animation: beat 1.6s ease-in-out infinite;
+  }
+  @keyframes beat {
+    0%, 100% { transform: scale(1); }
+    30% { transform: scale(1.15); }
+    60% { transform: scale(1.05); }
+  }
+
+  .msg-row { display: flex; margin-bottom: 4px; }
+  .msg-row.me { justify-content: flex-start; }
+  .msg-row.her { justify-content: flex-end; }
+
+  .bubble {
+    max-width: 78%; padding: 10px 14px;
+    border-radius: 18px; font-size: 15px; line-height: 1.45;
+    word-wrap: break-word; position: relative;
+    animation: pop 0.2s ease-out;
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.95) translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
+  .bubble.me {
+    background: var(--my-bubble);
+    border-bottom-right-radius: 6px;
+    color: var(--text);
+  }
+  .bubble.her {
+    background: var(--her-bubble);
+    border-bottom-left-radius: 6px;
+    color: var(--text);
+  }
+  .bubble-meta {
+    font-size: 10px; opacity: 0.55; margin-top: 4px;
+    display: flex; gap: 6px; align-items: center; justify-content: flex-end;
+  }
+  .bubble-meta .ticks { color: var(--accent); }
+
+  .typing {
+    padding: 8px 18px 0; font-size: 12px;
+    color: var(--text-dim); height: 24px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .typing-dots { display: inline-flex; gap: 3px; }
+  .typing-dots span {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); display: inline-block;
+    animation: bounce 1.3s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  .composer {
+    padding: 10px 12px 14px;
+    background: var(--bg-2);
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px; align-items: flex-end;
+  }
+  .icon-btn {
+    width: 42px; height: 42px; flex-shrink: 0;
+    border: none; border-radius: 50%;
+    background: rgba(232, 160, 191, 0.08);
+    color: var(--accent); font-size: 19px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .icon-btn:active { transform: scale(0.9); background: rgba(232, 160, 191, 0.16); }
+  .icon-btn.beating { animation: bigBeat 0.6s ease; }
+  @keyframes bigBeat {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+  }
+
+  .input {
+    flex: 1; min-height: 42px; max-height: 120px;
+    padding: 11px 16px; border-radius: 22px;
+    background: rgba(232, 160, 191, 0.06);
+    border: 1px solid var(--border);
+    color: var(--text); font-family: inherit; font-size: 15px;
+    outline: none; resize: none;
+    line-height: 1.4;
+  }
+  .input:focus { border-color: var(--accent); }
+  .input::placeholder { color: var(--text-dim); }
+
+  .send-btn {
+    width: 42px; height: 42px; flex-shrink: 0;
+    border: none; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+    color: #1a0f1a; font-size: 18px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .send-btn:active { transform: scale(0.9); }
+  .send-btn:disabled { opacity: 0.4; }
+
+  .link-screen {
+    position: fixed; inset: 0; z-index: 300;
+    background: var(--bg);
+    padding: 30px 24px;
+    overflow-y: auto;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .link-screen h2 {
+    color: var(--accent); font-weight: 400;
+    font-size: 22px; margin-bottom: 16px;
+    text-align: center; letter-spacing: 0.1em;
+  }
+  .link-screen p {
+    color: var(--text-dim); font-size: 14px;
+    line-height: 1.8; text-align: center;
+    margin-bottom: 24px;
+  }
+  .link-screen code {
+    background: rgba(232, 160, 191, 0.08);
+    border: 1px solid var(--border);
+    padding: 12px 16px; border-radius: 10px;
+    font-size: 12px; word-break: break-all;
+    color: var(--accent); direction: ltr;
+    text-align: left; display: block;
+    margin-bottom: 12px;
+  }
+</style>
 </head>
 <body>
-    <div id="instant-header"></div>
-    <script>
-        (function(){
-            try {
-                var raw = localStorage.getItem('alshanfricc_settings_cache');
-                if (raw) {
-                    var s = JSON.parse(raw).settings;
-                    if (s) {
-                        var header = document.getElementById('instant-header');
-                        if (header) {
-                            header.innerHTML = '<div style="background:rgba(0,0,0,0.4);color:white;padding:12px 20px;font-size:1.8rem;font-weight:bold;text-align:center;backdrop-filter:blur(10px);position:fixed;top:0;left:0;right:0;z-index:1000;">'+(s.siteName||'ALSHANFRICC')+'</div>';
-                            document.body.style.paddingTop = '60px';
-                        }
-                        document.documentElement.style.setProperty('--primary', s.primaryColor||'#8b5e3c');
-                        document.body.style.fontFamily = (s.bodyFont||'Amiri')+', serif';
-                    }
-                }
-            }catch(e){}
-        })();
-    </script>
-    <header id="site-header"></header>
-    <main class="main-layout">
-        <section id="posts-feed" class="feed"></section>
-        <aside class="right-sidebar">
-            <div class="sticky-widget"><h4>روابط سريعة</h4><div id="sidebar-buttons"></div></div>
-        </aside>
-    </main>
-    <footer id="site-footer"></footer>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">غروبنا</div>
+    <div class="auth-sub">مساحتنا الخاصة</div>
+    <input id="emailInput" type="email" class="auth-input"
+           placeholder="البريد الإلكتروني" autocomplete="email" dir="ltr">
+    <input id="passInput" type="password" class="auth-input"
+           placeholder="كلمة المرور" autocomplete="current-password" dir="ltr">
+    <button id="loginBtn" class="auth-btn">دخول</button>
+    <div id="authMsg" class="auth-msg"></div>
+  </div>
+</div>
 
-    <script src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/security-layer.js"></script>
-    <script src="assets/js/config/databases.js"></script>
-    <script src="assets/js/config/ai-models.js"></script>
-    <script src="assets/js/config/bots.js"></script>
-    <script src="assets/js/core/database-manager.js"></script>
-    <script src="assets/js/core/auto-publisher.js"></script>
-    <script src="assets/js/core/telegram-manager.js"></script>
-    <script src="assets/js/header.js"></script>
-    <script src="assets/js/body.js"></script>
-    <script src="assets/js/footer.js"></script>
+<div id="appScreen" hidden>
+  <header class="app-header">
+    <div class="partner">
+      <div class="avatar" id="partnerAvatar">🌙</div>
+      <div style="min-width:0">
+        <div class="partner-name" id="partnerName">...</div>
+        <div class="partner-status" id="partnerStatus">...</div>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat" id="streakStat">🔥 0</div>
+      <div class="stat" id="daysStat">💕 0</div>
+    </div>
+  </header>
 
-    <script>
-        (function() {
-            const savedFont = localStorage.getItem('selectedFont') || 'Amiri';
-            const link = document.getElementById('dynamic-font-link');
-            link.href = `https://fonts.googleapis.com/css2?family=${savedFont.replace(/ /g, '+')}:wght@400;700&display=swap`;
-            document.body.style.fontFamily = savedFont + ', serif';
-        })();
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await buildHeader();
-                await loadPosts(1);
-                await buildFooter();
-                const siteName = await getSetting('siteName', 'ALSHANFRICC');
-                document.getElementById('page-title').textContent = siteName;
-                const instant = document.getElementById('instant-header');
-                if (instant) instant.style.display = 'none';
-                console.log('✅ تم تحميل الموقع بنجاح');
-            } catch (error) { console.error('❌ خطأ في تحميل الموقع:', error); }
-        });
-    </script>
+  <main class="messages" id="messages">
+    <div class="empty-state">
+      <div class="heart">💕</div>
+      <div>هذه مساحتنا الخاصة…<br>ابدأ الحديث</div>
+    </div>
+  </main>
+
+  <div class="typing" id="typingBar"></div>
+
+  <footer class="composer">
+    <button class="icon-btn" id="heartBtn" title="نبضة">❤️</button>
+    <textarea id="msgInput" class="input" rows="1"
+              placeholder="اكتب رسالة…" autocomplete="off"></textarea>
+    <button class="send-btn" id="sendBtn" disabled>➤</button>
+  </footer>
+</div>
+
+<div id="linkScreen" class="link-screen" hidden>
+  <h2>⚙️ الإعداد مطلوب</h2>
+  <p>افتح ملف <code>index.html</code> وابحث عن <code>YOUR_SUPABASE_URL</code> واستبدله برابط مشروعك، ثم أعد التحميل.</p>
+  <code>const SUPABASE_URL = 'https://xxx.supabase.co';</code>
+  <code>const SUPABASE_KEY = 'eyJhbGci...';</code>
+</div>
+
+<script type="module">
+const SUPABASE_URL = 'https://lurfuxlpxbkgoggbovwb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PnGb5Lcd_cthFiHIYmswnA_WX4sjMVs';
+
+if (SUPABASE_URL.includes('YOUR_') || SUPABASE_KEY.includes('YOUR_')) {
+  document.getElementById('linkScreen').hidden = false;
+  document.getElementById('authScreen').hidden = true;
+  throw new Error('Configure Supabase first');
+}
+
+const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+});
+
+const state = {
+  me: null,
+  partner: null,
+  messages: [],
+  typingTimer: null,
+};
+
+const $ = id => document.getElementById(id);
+const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const fmtTime = ts => {
+  const d = new Date(ts);
+  return d.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+};
+
+async function checkSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    await startApp(session.user);
+  } else {
+    showAuth();
+  }
+}
+
+function showAuth() {
+  $('authScreen').hidden = false;
+  $('appScreen').hidden = true;
+}
+
+async function startApp(user) {
+  $('authScreen').hidden = true;
+  $('appScreen').hidden = false;
+
+  const { data: myProfile } = await sb.from('profiles')
+    .select('*').eq('id', user.id).single();
+
+  if (!myProfile) {
+    await sb.from('profiles').insert({
+      id: user.id,
+      email: user.email,
+      display_name: user.email.split('@')[0],
+      nickname: 'أنا',
+    });
+  }
+
+  state.me = myProfile || { id: user.id, email: user.email };
+
+  const { data: profiles } = await sb.from('profiles')
+    .select('*').neq('id', user.id);
+
+  state.partner = profiles?.[0] || null;
+
+  if (state.partner) {
+    $('partnerName').textContent = state.partner.nickname || state.partner.display_name || 'حبيبتي';
+    $('partnerAvatar').textContent = (state.partner.nickname || state.partner.display_name || 'ح')[0];
+    updatePartnerStatus(state.partner);
+  }
+
+  await loadMessages();
+  await loadStreak();
+  await updateMyPresence(true);
+  subscribeRealtime();
+  updateTypingStatus(false);
+}
+
+async function loadMessages() {
+  const { data, error } = await sb.from('messages')
+    .select('*')
+    .order('created_at', { ascending: true })
+    .limit(200);
+
+  if (error) { console.error(error); return; }
+  state.messages = data || [];
+  renderMessages();
+}
+
+function renderMessages() {
+  const box = $('messages');
+  if (!state.messages.length) {
+    box.innerHTML = `<div class="empty-state">
+      <div class="heart">💕</div>
+      <div>هذه مساحتنا الخاصة…<br>ابدأ الحديث</div>
+    </div>`;
+    return;
+  }
+
+  box.innerHTML = state.messages.map(m => {
+    const mine = m.sender_id === state.me?.id;
+    const cls = mine ? 'me' : 'her';
+    const ticks = mine ? (m.read_at ? '✓✓' : m.delivered_at ? '✓✓' : '✓') : '';
+    const tickColor = m.read_at ? '' : 'opacity:.5';
+    return `
+      <div class="msg-row ${cls}" data-id="${m.id}">
+        <div class="bubble ${cls}">
+          ${escapeHtml(m.content || '')}
+          <div class="bubble-meta">
+            <span>${fmtTime(m.created_at)}</span>
+            ${ticks ? `<span class="ticks" style="${tickColor}">${ticks}</span>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  requestAnimationFrame(() => {
+    box.scrollTop = box.scrollHeight;
+  });
+}
+
+async function sendMessage() {
+  const input = $('msgInput');
+  const content = input.value.trim();
+  if (!content || !state.me) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  $('sendBtn').disabled = true;
+
+  const tempId = 'temp-' + Date.now();
+  const optimistic = {
+    id: tempId,
+    sender_id: state.me.id,
+    content,
+    created_at: new Date().toISOString(),
+    delivered_at: new Date().toISOString(),
+  };
+  state.messages.push(optimistic);
+  renderMessages();
+
+  const { data, error } = await sb.from('messages').insert({
+    sender_id: state.me.id,
+    content,
+    media_type: 'text',
+  }).select().single();
+
+  if (error) {
+    state.messages = state.messages.filter(m => m.id !== tempId);
+    renderMessages();
+    console.error(error);
+    return;
+  }
+
+  state.messages = state.messages.filter(m => m.id !== tempId);
+  state.messages.push(data);
+  renderMessages();
+
+  await updateStreak();
+}
+
+function subscribeRealtime() {
+  sb.channel('messages-live')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'messages' },
+      payload => {
+        if (state.messages.some(m => m.id === payload.new.id)) return;
+        state.messages.push(payload.new);
+        renderMessages();
+        if (payload.new.sender_id !== state.me?.id) {
+          sb.from('messages').update({ read_at: new Date().toISOString() })
+            .eq('id', payload.new.id);
+        }
+      })
+    .on('postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'messages' },
+      payload => {
+        const idx = state.messages.findIndex(m => m.id === payload.new.id);
+        if (idx !== -1) {
+          state.messages[idx] = payload.new;
+          renderMessages();
+        }
+      })
+    .subscribe();
+
+  sb.channel('typing-live')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'typing_status' },
+      payload => {
+        if (payload.new.user_id === state.partner?.id) {
+          showTyping(payload.new.is_typing);
+        }
+      })
+    .subscribe();
+
+  sb.channel('beats-live')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'love_beats' },
+      payload => {
+        if (payload.new.from_user === state.partner?.id) {
+          pulseHeart();
+        }
+      })
+    .subscribe();
+
+  sb.channel('presence-live')
+    .on('postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'profiles' },
+      payload => {
+        if (payload.new.id === state.partner?.id) {
+          updatePartnerStatus(payload.new);
+        }
+      })
+    .subscribe();
+}
+
+function updatePartnerStatus(p) {
+  const status = $('partnerStatus');
+  const online = p.is_online && (Date.now() - new Date(p.last_seen).getTime() < 60000);
+  if (online) {
+    status.textContent = p.status_text ? `متصل · ${p.status_text}` : 'متصل الآن';
+    status.classList.add('online');
+  } else {
+    status.textContent = p.last_seen
+      ? `آخر ظهور ${fmtTime(p.last_seen)}`
+      : 'آخر ظهور منذ فترة';
+    status.classList.remove('online');
+  }
+}
+
+function showTyping(isTyping) {
+  const bar = $('typingBar');
+  if (isTyping) {
+    bar.innerHTML = `
+      ${escapeHtml(state.partner?.nickname || 'حبيبتي')} تكتب
+      <span class="typing-dots"><span></span><span></span><span></span></span>`;
+  } else {
+    bar.innerHTML = '';
+  }
+}
+
+function pulseHeart() {
+  const btn = $('heartBtn');
+  btn.classList.add('beating');
+  if (navigator.vibrate) navigator.vibrate(60);
+  setTimeout(() => btn.classList.remove('beating'), 700);
+}
+
+async function updateMyPresence(online) {
+  if (!state.me) return;
+  await sb.from('profiles').update({
+    is_online: online,
+    last_seen: new Date().toISOString(),
+  }).eq('id', state.me.id);
+}
+
+async function updateTypingStatus(isTyping) {
+  if (!state.me) return;
+  await sb.from('typing_status').upsert({
+    user_id: state.me.id,
+    is_typing: isTyping,
+    updated_at: new Date().toISOString(),
+  });
+}
+
+async function loadStreak() {
+  const { data } = await sb.from('streaks').select('*').eq('id', 1).single();
+  if (data) renderStreak(data);
+}
+
+async function updateStreak() {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data } = await sb.from('streaks').select('*').eq('id', 1).single();
+  if (!data) return;
+  if (data.last_message_date === today) return;
+
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const newStreak = data.last_message_date === yesterday
+    ? (data.current_streak || 0) + 1
+    : 1;
+
+  const longest = Math.max(newStreak, data.longest_streak || 0);
+
+  const { data: updated } = await sb.from('streaks').update({
+    current_streak: newStreak,
+    longest_streak: longest,
+    last_message_date: today,
+    updated_at: new Date().toISOString(),
+  }).eq('id', 1).select().single();
+
+  if (updated) renderStreak(updated);
+}
+
+function renderStreak(s) {
+  $('streakStat').textContent = `🔥 ${s.current_streak || 0}`;
+}
+
+async function sendHeart() {
+  if (!state.me || !state.partner) return;
+  pulseHeart();
+  await sb.from('love_beats').insert({
+    from_user: state.me.id,
+    to_user: state.partner.id,
+    beat_type: 'heart',
+  });
+}
+
+$('loginBtn').addEventListener('click', async () => {
+  const email = $('emailInput').value.trim();
+  const password = $('passInput').value;
+  const btn = $('loginBtn');
+  const msg = $('authMsg');
+
+  if (!email || !password) {
+    msg.textContent = 'أدخل البريد وكلمة المرور';
+    return;
+  }
+
+  btn.disabled = true;
+  msg.textContent = '...';
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    msg.textContent = '❌ ' + (error.message || 'فشل الدخول');
+    btn.disabled = false;
+    return;
+  }
+
+  msg.textContent = '✅';
+  await startApp(data.user);
+});
+
+$('passInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') $('loginBtn').click();
+});
+
+const input = $('msgInput');
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  $('sendBtn').disabled = !input.value.trim();
+
+  updateTypingStatus(true);
+  clearTimeout(state.typingTimer);
+  state.typingTimer = setTimeout(() => updateTypingStatus(false), 2500);
+});
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+$('sendBtn').addEventListener('click', sendMessage);
+$('heartBtn').addEventListener('click', sendHeart);
+
+checkSession();
+
+window.addEventListener('focus', () => updateMyPresence(true));
+window.addEventListener('blur', () => updateMyPresence(false));
+setInterval(() => { if (state.me) updateMyPresence(true); }, 30000);
+</script>
 </body>
 </html>
